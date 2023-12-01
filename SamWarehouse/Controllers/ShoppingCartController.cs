@@ -38,8 +38,11 @@ namespace SamWarehouse.Controllers
                 return PartialView("_ShoppingCartPartial");
                 }
             //Get the shopping cart lines for the selected cart and add them to its cart items.
-            shoppingCart.CartItems = _context.ShoppingCartItems.Include(ci => ci.ShoppingCartId)
-                    .Where(ci => ci.ShoppingCartId == shoppingCart.ShoppingCartId).ToList();
+            //  shoppingCart.CartItems = _context.ShoppingCartItems.Include(ci => ci.ShoppingCartItemId)
+            // .Where(ci => ci.ShoppingCartId == shoppingCart.ShoppingCartId).ToList();   
+
+            //Get the shopping cart lines for the selected cart and add them to its cart items.
+            shoppingCart.CartItems = _context.ShoppingCartItems.Where(ci => ci.ShoppingCartId == shoppingCart.ShoppingCartId).ToList();
 
             //Return the shopping cart partial view with any data we hand over to it.
             return PartialView("_ShoppingCartPartial", shoppingCart);
@@ -98,6 +101,7 @@ namespace SamWarehouse.Controllers
                 cart = new ShoppingCart
                     {
                     UserId = userId,
+                    Date = DateTime.Now,
                     CartItems = new List<ShoppingCartItem> { cartItem }
                     };
                 //Add the new cart to Entity Framwork as well as the details of the new cartItem from within

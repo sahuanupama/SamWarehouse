@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using SamWarehouse.Models;
 using System.Security.Claims;
+using Ganss.Xss;
 
 namespace SamWarehouse.Controllers
     {
@@ -123,6 +124,8 @@ namespace SamWarehouse.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateUser(CreateUserDTO user)
             {
+            // creating new instane of Html Sanitizer
+            HtmlSanitizer sanitizer = new HtmlSanitizer();
             string authenticted = HttpContext.Session.GetString("IsAuthenticated") ?? "false";
             if (authenticted.Equals("false"))
                 {
@@ -141,7 +144,8 @@ namespace SamWarehouse.Controllers
                 }
             AppUser newUser = new AppUser
                 {
-                UserName = user.UserName,
+                // Sanitizng the user name
+                UserName = sanitizer.Sanitize(user.UserName),
                 Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password)
                 };
             _context.Add(newUser);

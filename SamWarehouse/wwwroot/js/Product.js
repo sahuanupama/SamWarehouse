@@ -4,17 +4,17 @@
 
     addButtons.forEach((button) => {
         //Get the value attribute from the button to get the bookId
-        let ProductId = parseInt(button.getAttribute("value"));
+        let ProductCode = parseInt(button.getAttribute("value"));
         //Add a listener to the button for the click action that will trigger the
         //addItemToCart method when it is pressed.
-        button.addEventListener('click', () => addItemToCart(ProductId));
+        button.addEventListener('click', () => addItemToCart(ProductCode));
     });
 })
 
-async function addItemToCart(ProductId) {
+async function addItemToCart(ProductCode) {
     //Send the fetch request to add the book to the user's cart. The book
     //Id is added as part of the URL address
-    let result = await fetch("/ShoppingCart/AddToCart/" + ProductId);
+    let result = await fetch("/ShoppingCart/AddToCart/" + ProductCode);
     //If the result is an Unauthorised message, redirect the user to the login page.
     if (result.status == 401) {
         location.href = "Login/Login";

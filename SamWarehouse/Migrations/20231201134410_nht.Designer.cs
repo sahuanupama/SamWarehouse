@@ -12,8 +12,8 @@ using SamWarehouse.Models;
 namespace SamWarehouse.Migrations
 {
     [DbContext(typeof(ItemDbContext))]
-    [Migration("20231201015129_SWH1")]
-    partial class SWH1
+    [Migration("20231201134410_nht")]
+    partial class nht
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,14 +53,14 @@ namespace SamWarehouse.Migrations
                         new
                         {
                             UserId = 1,
-                            Password = "$2a$11$B70Z8Legav0F.ll1yo7MZ.aLhfv8N1oaNlJfTRhY1CehGFr5IZ2Wm",
+                            Password = "$2a$11$VlaUjdUXR.AlJw.7ALkVNuNz2MMvChDMrZv7TkZw/XPzt2EQF.qaG",
                             Role = "Admin",
                             UserName = "Anu"
                         },
                         new
                         {
                             UserId = 2,
-                            Password = "$2a$11$XPf2/HxA3b8koX1dGYAW5u/g0bOHTLBP.2zDUFlZ4bu8DLa/Bk2bG",
+                            Password = "$2a$11$TykNdkjGrhcTSOLfDE409O8iBR5R6g78UNM9LSiFHxc6I3PdFhtpe",
                             Role = "Admin",
                             UserName = "Troy"
                         });
@@ -127,6 +127,24 @@ namespace SamWarehouse.Migrations
                     b.HasKey("ProductCode");
 
                     b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            ProductCode = 1,
+                            ProductDescription = "Test 24",
+                            ProductName = "Anu",
+                            ProductPrice = 20.23,
+                            UpdatedDate = new DateTime(2023, 12, 1, 23, 44, 10, 723, DateTimeKind.Local).AddTicks(1312)
+                        },
+                        new
+                        {
+                            ProductCode = 2,
+                            ProductDescription = "Test tyty 24",
+                            ProductName = "Shirt",
+                            ProductPrice = 26.23,
+                            UpdatedDate = new DateTime(2023, 12, 1, 23, 44, 10, 723, DateTimeKind.Local).AddTicks(1369)
+                        });
                 });
 
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCart", b =>
@@ -137,9 +155,6 @@ namespace SamWarehouse.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShoppingCartId"));
 
-                    b.Property<int>("CartUserUserId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
 
@@ -149,12 +164,12 @@ namespace SamWarehouse.Migrations
                     b.Property<double?>("Total")
                         .HasColumnType("float");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("ShoppingCartId");
 
-                    b.HasIndex("CartUserUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ShoppingCarts");
                 });
@@ -170,21 +185,19 @@ namespace SamWarehouse.Migrations
                     b.Property<string>("ImangePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductCode")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductItemProductCode")
+                    b.Property<int?>("ProductCode")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("ShoppingCartId")
+                    b.Property<int?>("ShoppingCartId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.HasKey("ShoppingCartItemId");
 
-                    b.HasIndex("ProductItemProductCode");
+                    b.HasIndex("ProductCode");
 
                     b.HasIndex("ShoppingCartId");
 
@@ -214,9 +227,7 @@ namespace SamWarehouse.Migrations
                 {
                     b.HasOne("SamWarehouse.Models.AppUser", "CartUser")
                         .WithMany("Carts")
-                        .HasForeignKey("CartUserUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("CartUser");
                 });
@@ -224,10 +235,8 @@ namespace SamWarehouse.Migrations
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCartItem", b =>
                 {
                     b.HasOne("SamWarehouse.Models.Product", "ProductItem")
-                        .WithMany("CartItems")
-                        .HasForeignKey("ProductItemProductCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("ProductCode");
 
                     b.HasOne("SamWarehouse.Models.ShoppingCart", "Cart")
                         .WithMany("CartItems")
@@ -243,11 +252,6 @@ namespace SamWarehouse.Migrations
             modelBuilder.Entity("SamWarehouse.Models.AppUser", b =>
                 {
                     b.Navigation("Carts");
-                });
-
-            modelBuilder.Entity("SamWarehouse.Models.Product", b =>
-                {
-                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCart", b =>

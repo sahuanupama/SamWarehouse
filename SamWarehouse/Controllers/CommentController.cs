@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SamWarehouse.Models;
+using Ganss.Xss;
 
 namespace SamWarehouse.Controllers
     {
@@ -47,6 +48,8 @@ namespace SamWarehouse.Controllers
         [HttpPost]
         public IActionResult AddComment(Comment comment)
             {
+            // creating new instane of Html Sanitizer
+            HtmlSanitizer sanitizer = new HtmlSanitizer();
             if (!isLoggedin())
                 {
                 return RedirectToAction("Index", "Product");
@@ -55,6 +58,9 @@ namespace SamWarehouse.Controllers
             var userId = HttpContext.Session.GetInt32("userId");
             comment.UserId = (int)userId;
             comment.CreatedDate = DateTime.Now;
+            // Sanitizing the comment text
+            comment.CommentText = sanitizer.Sanitize(comment.CommentText);
+
             _context.Comments.Add(comment);
             _context.SaveChanges();
 

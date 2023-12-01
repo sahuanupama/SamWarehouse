@@ -58,7 +58,7 @@ async function showCartModal()
     var htmlResult = await result.text();
     //Access the modal body by its ID and change its internal content
     // to be the partial view content.
-    Document.getElementById("cartModalBody").innerHTMl = htmlResult;
+    document.getElementById("cartModalBody").innerHTMl = htmlResult;
     //Set the modal to appearonscreen.
     $('#cartModal').modal("show");
 }

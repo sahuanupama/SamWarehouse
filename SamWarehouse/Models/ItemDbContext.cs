@@ -54,6 +54,25 @@ namespace SamWarehouse.Models
                       Role = "Admin"
                       }
                   );
+            modelBuilder.Entity<Product>().HasData(
+                new Product
+                    {
+                    ProductCode = 1,
+                    ProductName = "Anu",
+                    ProductDescription = "Test 24",
+                    ProductPrice = 20.23,
+                    UpdatedDate = DateTime.Now,
+                    },
+                  new Product
+                      {
+                      ProductCode = 2,
+                      ProductName = "Shirt",
+                      ProductDescription = "Test tyty 24",
+                      ProductPrice = 26.23,
+                      UpdatedDate = DateTime.Now,
+                      }
+                  );
+
             }
         }
     }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SamWarehouse.Migrations
 {
     /// <inheritdoc />
-    public partial class SWH1 : Migration
+    public partial class nht : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,21 +50,19 @@ namespace SamWarehouse.Migrations
                 {
                     ShoppingCartId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Total = table.Column<double>(type: "float", nullable: true),
-                    IsFinalised = table.Column<bool>(type: "bit", nullable: false),
-                    CartUserUserId = table.Column<int>(type: "int", nullable: false)
+                    IsFinalised = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ShoppingCarts", x => x.ShoppingCartId);
                     table.ForeignKey(
-                        name: "FK_ShoppingCarts_AppUsers_CartUserUserId",
-                        column: x => x.CartUserUserId,
+                        name: "FK_ShoppingCarts_AppUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AppUsers",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -103,20 +101,18 @@ namespace SamWarehouse.Migrations
                     ShoppingCartItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ShoppingCartId = table.Column<int>(type: "int", nullable: false),
-                    ProductCode = table.Column<int>(type: "int", nullable: false),
+                    ProductCode = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    ImangePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProductItemProductCode = table.Column<int>(type: "int", nullable: false)
+                    ImangePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ShoppingCartItems", x => x.ShoppingCartItemId);
                     table.ForeignKey(
-                        name: "FK_ShoppingCartItems_Products_ProductItemProductCode",
-                        column: x => x.ProductItemProductCode,
+                        name: "FK_ShoppingCartItems_Products_ProductCode",
+                        column: x => x.ProductCode,
                         principalTable: "Products",
-                        principalColumn: "ProductCode",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ProductCode");
                     table.ForeignKey(
                         name: "FK_ShoppingCartItems_ShoppingCarts_ShoppingCartId",
                         column: x => x.ShoppingCartId,
@@ -130,8 +126,17 @@ namespace SamWarehouse.Migrations
                 columns: new[] { "UserId", "Password", "Role", "UserName" },
                 values: new object[,]
                 {
-                    { 1, "$2a$11$B70Z8Legav0F.ll1yo7MZ.aLhfv8N1oaNlJfTRhY1CehGFr5IZ2Wm", "Admin", "Anu" },
-                    { 2, "$2a$11$XPf2/HxA3b8koX1dGYAW5u/g0bOHTLBP.2zDUFlZ4bu8DLa/Bk2bG", "Admin", "Troy" }
+                    { 1, "$2a$11$VlaUjdUXR.AlJw.7ALkVNuNz2MMvChDMrZv7TkZw/XPzt2EQF.qaG", "Admin", "Anu" },
+                    { 2, "$2a$11$TykNdkjGrhcTSOLfDE409O8iBR5R6g78UNM9LSiFHxc6I3PdFhtpe", "Admin", "Troy" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "ProductCode", "ProductDescription", "ProductName", "ProductPrice", "UpdatedDate" },
+                values: new object[,]
+                {
+                    { 1, "Test 24", "Anu", 20.23, new DateTime(2023, 12, 1, 23, 44, 10, 723, DateTimeKind.Local).AddTicks(1312) },
+                    { 2, "Test tyty 24", "Shirt", 26.23, new DateTime(2023, 12, 1, 23, 44, 10, 723, DateTimeKind.Local).AddTicks(1369) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -145,9 +150,9 @@ namespace SamWarehouse.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ShoppingCartItems_ProductItemProductCode",
+                name: "IX_ShoppingCartItems_ProductCode",
                 table: "ShoppingCartItems",
-                column: "ProductItemProductCode");
+                column: "ProductCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShoppingCartItems_ShoppingCartId",
@@ -155,9 +160,9 @@ namespace SamWarehouse.Migrations
                 column: "ShoppingCartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ShoppingCarts_CartUserUserId",
+                name: "IX_ShoppingCarts_UserId",
                 table: "ShoppingCarts",
-                column: "CartUserUserId");
+                column: "UserId");
         }
 
         /// <inheritdoc />

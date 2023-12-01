@@ -26,7 +26,7 @@ namespace SamWarehouse.Models
         [Display(Name = "Product Update Date")]
         public DateTime UpdatedDate { get; set; }
 
-        public virtual List<ShoppingCartItem> CartItems { get; set; }
+        //public virtual List<ShoppingCartItem> CartItems { get; set; }
 
         }
     }

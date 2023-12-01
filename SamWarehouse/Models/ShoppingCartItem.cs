@@ -7,16 +7,16 @@ namespace SamWarehouse.Models
         {
         [Key]
         public int ShoppingCartItemId { get; set; }
-        public int ShoppingCartId { get; set; }
-        public int ProductCode { get; set; }
+        public int? ShoppingCartId { get; set; }
+        public int? ProductCode { get; set; }
         public int Quantity { get; set; }
         public string? ImangePath { get; set; }
         // public int? UserId { get; set; }
 
         //Linking refrences to the other tables that this table has a relationship with.
-        //  [ForeignKey("ShoppingCartId")]
+        [ForeignKey("ShoppingCartId")]
         public virtual ShoppingCart Cart { get; set; }
-        //    [ForeignKey("ProductCode")]
+        [ForeignKey("ProductCode")]
         public virtual Product ProductItem { get; set; }
         // [ForeignKey("UserId")]
         // public virtual AppUser User { get; set; }
