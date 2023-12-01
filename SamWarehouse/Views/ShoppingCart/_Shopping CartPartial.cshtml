@@ -1,0 +1,44 @@
+﻿@model SamWarehouse.Models.ShoppingCart
+
+
+
+@if (Model != null && Model.CartItems.Count > 0)
+
+    {
+    <div class="container">
+        @foreach (var item in Model.CartItems)
+            {
+            <div class="card p-1">
+                <p>@item.ProductCode</p>
+                <div class="row">
+                    <form class="item-qty-form d-flex justify-content-between col-3 m-1">
+                        <input type="hidden" name="id" value="@item.ProductCode" />
+                        <button class="btn btn-success minus-button"> - </button>
+                        <p name="Quantity">@item.Quantity</p>
+                        <button class="btn btn-success plus-button"> + </button>
+                    </form>
+                    <button type="button" value="@item.ProductCode" class="remove-button btn btn-danger">
+                        Remove
+                    </button>
+                </div>
+            </div>
+            }
+    </div>
+
+    }
+<p id=" modelTotal"> CartTotal: 0.00</p>
+<div footer class="footer border-top">
+    <div>  <h4>Summary</h4>
+        <p class ="text-light" id="modalGrandTotal ">$100</p>
+        <p>Tax included</p>
+        <p id="modalTotal"> Cat Total: 0.00</p>
+    @{
+        if (Model != null)
+            {
+            <button type="button" value="@Model.ShoppingCartId" id=" btnCheckout" action=""></button>
+            }
+    }
+    Test
+    </div>
+   
+</div footer>

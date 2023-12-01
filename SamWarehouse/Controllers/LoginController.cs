@@ -1,143 +1,159 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using SamWarehouse.Repositories;
-using System.Security.Claims;
 using SamWarehouse.Models;
-using Azure.Identity;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Security.Claims;
 
 namespace SamWarehouse.Controllers
     {
     public class LoginController : Controller
         {
         private readonly ItemDbContext _context;
-        private readonly AuthRepository _authRepository;
 
-        public LoginController(ItemDbContext context, AuthRepository authRepository)
+        public LoginController(ItemDbContext context)
             {
             _context = context;
-            _authRepository = authRepository;
             }
-
-
-
-        public IActionResult Login([FromQuery] string ReturnUrl, LoginUserDTO LoginUserDTO)
+        public IActionResult Login()
             {
-            LoginUserDTO login = new LoginUserDTO
-                {
-                ReturnUrl = String.IsNullOrWhiteSpace(ReturnUrl) ? "/Home" : ReturnUrl
-                };
-            return View(login);
+            return View();
             }
 
-        /* public IActionResult Login([FromQuery] string ReturnUrl)
-             {
-             LoginUserDTO login = new LoginUserDTO
-                 {
-                 ReturnUrl = String.IsNullOrWhiteSpace(ReturnUrl) ? "/Home" : ReturnUrl
-                 };
-             return View(login);
-             }*/
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginUserDTO login)
+        public IActionResult Login(LoginUserDTO user)
             {
-            //Checks if the username and account match an existing user account.
-            var account = _authRepository.Authenticate(login);
-            //If no match is found, return to the view.
+            var account = _context.AppUsers.Where(a => a.UserName == user.UserName).FirstOrDefault();
             if (account == null)
                 {
-                ViewBag.LoginMessage = "Username or Password is incorrect";
-                return View(login);
+                ViewBag.LoginError = "Username or Password incorrect";
+                return View(user);
                 }
 
-            //Create new claim list for the current user.
-            var claims = new List<Claim>
-            {
+            if (BCrypt.Net.BCrypt.EnhancedVerify(user.Password, account.Password))
+                {
+                /*var claims = new List<Claim>{
+                 //Add the claim details for the user.
                 new Claim(ClaimTypes.Name, account.UserName),
-                new Claim(ClaimTypes.Role, account.Role)
-            };
+                new Claim(ClaimTypes.Role, account.Role),
+                new Claim("Department","Management")};
 
-            //Create new identity using the created claims.
-            var claimsIdenity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties
+                    {
+                    //Sets whether the cliding expiry is allowed for this user. Default is true.
+                    AllowRefresh = true,
+                    //Whether the login is persitent across all requests
+                    IsPersistent = true
+                    };
+                //Creates a user identity which will be used for the authentication system.
+                var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var authProperties = new AuthenticationProperties
-                {
-                //Allows the sliding expiration cookie rule to be used on this user login.
-                AllowRefresh = true,
-                //Lets the cookie persist over multiple sessions within the timout period, not just the next one.
-                IsPersistent = true,
-                //Takes back the redirect address for once the login is completed.
-                RedirectUri = login.ReturnUrl
-                };
+                //Signs in the user using the previously setup details.
+                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                                            new ClaimsPrincipal(claimIdentity), authProperties);*/
+                HttpContext.Session.SetString("IsAuthenticated", "true");
+                HttpContext.Session.SetString("Name", account.UserName);
+                HttpContext.Session.SetInt32("Viewed", 0);
+                HttpContext.Session.SetInt32("ID", account.UserId);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                                                    new ClaimsPrincipal(claimsIdenity), authProperties);
-            //Store the current users id in the session so we can retrieve it when we 
-            //need to identify who's shopping cart to display.
-            HttpContext.Session.SetInt32("ID", account.Id);
 
-            return Redirect(login.ReturnUrl);
-            }
-
-        public async Task<IActionResult> Logoff()
-            {
-            await HttpContext.SignOutAsync();
-            //If the user signs out, set the session value to -1 which will be used to indicate
-            //there is no user cart to display.
-            HttpContext.Session.SetInt32("ID", -1);
-            return RedirectToAction("Index", "Home");
-            }
-
-        [Authorize(Roles = "Admin")]
-        public IActionResult AddUser()
-            {
-            bool authenticated = HttpContext.User.Identity.IsAuthenticated;
-            if (authenticated == false)
-                {
                 return RedirectToAction("Index", "Home");
                 }
 
-            var roles = Enum.GetValues(typeof(Roles)).Cast<Roles>().Select(
-                e => new SelectListItem() { Text = e.ToString(), Value = e.ToString() }).ToList();
+            ViewBag.LoginError = "Username or Password incorrect";
+            return View(user);
+            }
 
-            ViewBag.Roles = roles;
+        //Create a list of claims associated with the logged in user. These will normally
+        //be taken from their user profile.
+        /*var claims = new List<Claim>
+            {
+                //Add the claim details for the user.
+                new Claim(ClaimTypes.Name, account.UserName),
+                new Claim(ClaimTypes.Role, account.Role),
+                new Claim("Department","Management")
+            };*/
+
+
+
+        //Set any additional properties fo rthis user's login
+
+        /*var authProperties = new AuthenticationProperties
+            {
+            //Sets whether the cliding expiry is allowed for this user. Default is true.
+            AllowRefresh = true,
+            //Whether the login is persitent across all requests
+            IsPersistent = true
+            };
+        //Creates a user identity which will be used for the authentication system.
+        var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        //Signs in the user using the previously setup details.
+        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                                    new ClaimsPrincipal(claimIdentity), 
+                                    authProperties);
+            //Redirect the user back to where they were trying to go before being made to log in.
+            return Redirect(user.ReturnUrl);
+        }
+*/
+
+        public IActionResult LogOff()
+            {
+            HttpContext.Session.SetString("IsAuthenticated", "false");
+            return RedirectToAction("Index", "Home");
+            }
+
+        public IActionResult CreateUser()
+            {
+            //Gets the value of the IsAuthenticated string from the session.
+            //If empty, set the variable to blank.
+            string authenticated = HttpContext.Session.GetString("IsAuthenticated");
+            //If the user is not authenticated, redirect them to the login page.
+            if (authenticated.Equals("false"))
+                {
+                ViewBag.LoginError = "Login required to access this page.";
+                return View("Login");
+                }
 
             return View();
             }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //   [Authorize(Roles = "Admin")]
-        public IActionResult AddUser(LoginUserDTO login)
+        public IActionResult CreateUser(CreateUserDTO user)
             {
-            bool authenticated = HttpContext.User.Identity.IsAuthenticated;
-            if (authenticated == false)
+            string authenticted = HttpContext.Session.GetString("IsAuthenticated") ?? "false";
+            if (authenticted.Equals("false"))
                 {
-                return RedirectToAction("Index", "Home");
+                ViewBag.LoginError = "Login requires to access this page.";
+                return RedirectToAction("Login");
                 }
-
-            if (login.Password.Equals(login.PasswordConfirmation) == false)
+            if (user.Password.Equals(user.PasswordConfirmation) == false)
                 {
-                ViewBag.NewUserMessage = "Password and confirmation do not match";
-                return View();
+                ViewBag.CreateUserError = "Password and Password conformation do not match";
+                return View(user);
                 }
-
-            var account = _authRepository.CreateUser(login, login.Role);
-            if (account == null)
+            if (_context.AppUsers.Any(adminUser => adminUser.UserName == user.UserName))
                 {
-                ViewBag.NewUserMessage = "Username already exists!";
+                ViewBag.CreateUserError = "Username already exist.";
+                return View(user);
                 }
+            AppUser newUser = new AppUser
+                {
+                UserName = user.UserName,
+                Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password)
+                };
+            _context.Add(newUser);
+            _context.SaveChanges();
+            return RedirectToAction("Index", "Home");
+            }
 
-            ViewBag.NewUserMessage = "New user added!";
-            ModelState.Clear();
 
+        public IActionResult AccessDenied()
+            {
             return View();
             }
         }
     }
+

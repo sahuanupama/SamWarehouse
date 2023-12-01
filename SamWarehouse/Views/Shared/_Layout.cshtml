@@ -4,10 +4,10 @@
 @{
     //Gets our current theme selection form the Session and sets it in a variable.
     //If it doesn't exist the variable will default ot Dark.
-    string themeSetting = Context.Session.GetString("Theme") ?? "Dark";
+    string themeSetting = Context.Session.GetString("Theme") ?? "Light";
 
     //Checks whether the current user is logged in or not.
-    bool Authenticated = Context.User != null && Context.User.Identity.IsAuthenticated;
+    String Authenticated = Context.Session.GetString("IsAuthenticated") ?? "false";
 
 }
 
@@ -15,10 +15,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SamWarehouse</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SamWarehouse.styles.css" asp-append-version="true" />
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/site.css" />
     @{
         if (themeSetting.Equals("Dark"))
             {
@@ -29,17 +28,20 @@
             <link rel="stylesheet" href="~/css/themes/light-theme.css" id="themeStyle" />
             }
     }
+   <!--Change screen colour----- -->
 
 </head>
-<body>
+<body class="bg-theme-colour-0">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm theme-colour-1 bg-theme-colour-4 border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SamWarehouse</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -48,19 +50,47 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Item">Ie</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Shopping</a>
                         </li>
 
                     </ul>
                 </div>
 
+                <!--Create a container that is a row, uses flexbox and centralises its content-->
+                <div class="row d-flex justify-content-center">
+                    <!--Creates a div that displays as a card, is sized to be 8/12ths of the screen size,
+                    centres its content vertically and has a padding size of 3-->
+                    <div class="align-items-center" p-3">
+                        <!--Create a form that will post to the ImageUpload action of the fhome controller-->
+                        <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="ImageUpload">
+                            <div class="col-md-10">
+                              <input type="file" name="file" />
+                            </div>
+                            <div class="col-md-10">
+                                <input type="submit" value="Submit File" class="my-2 btn btn-success" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!--Create container for download files-->
+                <div align="right" vertical="center">
+                    <div class="container align-content-lg-end">
+                        <form method="post" asp-controller="Home" asp-action="DownloadFile">
+                            <input type="text" placeholder="filename.jpg" name="fileName" />
+                            <input type="submit" value="DownloadFile" class="my-2 btn btn-danger" />
+                        </form>
+                    </div>
+                </div>
+
                 <div>
                     @{
                         //Determine which buttons show based upon wheteher the user is authenticated or not.
-                        if (Authenticated)
+                        if (Authenticated == "true")
                             {
                             <a class="btn btn-danger mx-1" asp-controller="Login" asp-action="LogOff">Log Off</a>
+                            <button type="button" id="btnCartModel" class="btn btn-outline-primary">Favorities</button>
                             }
                         else
                             {
@@ -68,8 +98,14 @@
                              <a class="btn btn-success mx-1" asp-controller="Login" asp-action="Login">Login</a>
                              -->
                             @Html.ActionLink("Login","Login","Login",new{returnUrl=Context.Request.Path.ToString()},new{@class="btn btn-success mx-1"})
+
                             <a class="btn btn-primary mx-1" asp-controller="Login" asp-action="CreateUser">Sign Up</a>
                             }
+
+                        <!--if (Authenticated && String.IsNullOrEmpty(Context.Session.GetString("Id")) == false)
+                            {
+                           <button type ="button" id="btnCartModel" class="btn btn-outline-primary" >Favorities</button>
+                            } -->
                     }
             </div>
 
@@ -81,11 +117,40 @@
     <div class="d-flex justify-content-end">
         <input type="button" class="m-2" value="Change Theme" id="btnTheme" />
     </div>
+    <div class=" "s"></div>
 
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
+    </div>
+
+    <!--Modal for our shopping cart that will hold our _ShoppingCartPartial view-->
+    <div class="modal right fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalTitle">Shopping Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="cartModalBody">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Adding shopping cart-->
+    <div class="modal right fade" id="cartModal" tabindex="-1" role="dialog">
+        <
+        <div class="modal-dialog">
+            <div class=" modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-centre text-light "> Shopping Cart </h5>
+                    <button type="button" class="btn-close" daata-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class=" modal-body" id="cartModalBody"></div>
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
@@ -94,7 +159,10 @@
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+  
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

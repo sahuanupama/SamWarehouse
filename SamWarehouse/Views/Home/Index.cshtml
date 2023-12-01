@@ -1,53 +1,31 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http;
+
+@{
     ViewData["Title"] = "Home Page";
-    string name = Context.Session.GetString("Name") ?? "Guest";
-    int viewed = Context.Session.GetInt32("Viewed") ?? -1;
-}
+   string name = Context.Session.GetString("Name") ?? "Guest";
+  int viewed = Context.Session.GetInt32("Viewed") ?? -1;
+  }
+
+<div class="w-25">
+    <img id="main-page-icon" src="~/images/ShopIcon.png" alt="Shop Icon" />
+</div>
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     @{
         if (name.Equals("Guest"))
             {
-            <h3>To login under your personal account go to the Privacy(fake login) link.</h3>
+            <h3>Welcome to shopping at SamWarehouse.</h3>
             }
         if(viewed != -1)
             {
-            <h3>You have viewed this page @viewed times since loggin in.</h3>
+            <h3>Please login for shopping @viewed times since loggin in.</h3>
             }
     }
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 
 
-<!--Create a container that is a row, uses flexbox and centralises its content-->
-<div class="row d-flex justify-content-center">
-    <!--Creates a div that displays as a card, is sized to be 8/12ths of the screen size,
-    centres its content vertically and has a padding size of 3-->
-    <div class="card col-8 align-items-center p-3">
-        <h2>Upload a File</h2>
-        <!--Create a form that will post to the ImageUpload action of the fhome controller-->
-        <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="ImageUpload">
-            <div class="col-md-10">
-                <p>Upload a file using this form:</p>
-                <input type="file" name="file" />
-            </div>
-            <div class="col-md-10">
-                <input type="submit" value="Submit File" class="my-2 btn btn-success" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="row d-flex justify-content-center">
-    <div class="card col-8 align-items-center p-3">
-        <h2>Download a File</h2>
-        <form method="post" asp-controller="Home" asp-action="DownloadFile">
-            <input type="text" placeholder="filename.jpg" name="fileName" />
-            <input type="submit" value="Download" class="my-2 btn btn-danger" />
-        </form>
-    </div>
-</div>
 
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">

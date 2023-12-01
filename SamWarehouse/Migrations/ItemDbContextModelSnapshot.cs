@@ -24,13 +24,13 @@ namespace SamWarehouse.Migrations
 
             modelBuilder.Entity("SamWarehouse.Models.AppUser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -42,49 +42,106 @@ namespace SamWarehouse.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("AppUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Password = "$2a$11$B70Z8Legav0F.ll1yo7MZ.aLhfv8N1oaNlJfTRhY1CehGFr5IZ2Wm",
+                            Role = "Admin",
+                            UserName = "Anu"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            Password = "$2a$11$XPf2/HxA3b8koX1dGYAW5u/g0bOHTLBP.2zDUFlZ4bu8DLa/Bk2bG",
+                            Role = "Admin",
+                            UserName = "Troy"
+                        });
                 });
 
-            modelBuilder.Entity("SamWarehouse.Models.Item", b =>
+            modelBuilder.Entity("SamWarehouse.Models.Comment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CommentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
 
-                    b.Property<string>("ItemName")
+                    b.Property<string>("CommentText")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<double>("ItemPrice")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductItemProductCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("ProductItemProductCode");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("SamWarehouse.Models.Product", b =>
+                {
+                    b.Property<int>("ProductCode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductCode"));
+
+                    b.Property<string>("ProductDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double>("ProductPrice")
                         .HasColumnType("float");
 
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("ProductCode");
 
-                    b.ToTable("Items");
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCart", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ShoppingCartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShoppingCartId"));
 
-                    b.Property<int>("CartUserId")
+                    b.Property<int>("CartUserUserId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsFinalised")
+                        .HasColumnType("bit");
 
                     b.Property<double?>("Total")
                         .HasColumnType("float");
@@ -92,25 +149,28 @@ namespace SamWarehouse.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isFinnalised")
-                        .HasColumnType("bit");
+                    b.HasKey("ShoppingCartId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("CartUserUserId");
 
-                    b.HasIndex("CartUserId");
-
-                    b.ToTable("ShoppingCart");
+                    b.ToTable("ShoppingCarts");
                 });
 
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCartItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ShoppingCartItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShoppingCartItemId"));
 
-                    b.Property<int>("ItemId")
+                    b.Property<string>("ImangePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductItemProductCode")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -119,20 +179,39 @@ namespace SamWarehouse.Migrations
                     b.Property<int>("ShoppingCartId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("ShoppingCartItemId");
 
-                    b.HasIndex("ItemId");
+                    b.HasIndex("ProductItemProductCode");
 
                     b.HasIndex("ShoppingCartId");
 
                     b.ToTable("ShoppingCartItems");
                 });
 
+            modelBuilder.Entity("SamWarehouse.Models.Comment", b =>
+                {
+                    b.HasOne("SamWarehouse.Models.Product", "ProductItem")
+                        .WithMany()
+                        .HasForeignKey("ProductItemProductCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SamWarehouse.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductItem");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCart", b =>
                 {
                     b.HasOne("SamWarehouse.Models.AppUser", "CartUser")
                         .WithMany("Carts")
-                        .HasForeignKey("CartUserId")
+                        .HasForeignKey("CartUserUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -141,9 +220,9 @@ namespace SamWarehouse.Migrations
 
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCartItem", b =>
                 {
-                    b.HasOne("SamWarehouse.Models.Item", "ShoppingItem")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
+                    b.HasOne("SamWarehouse.Models.Product", "ProductItem")
+                        .WithMany("CartItems")
+                        .HasForeignKey("ProductItemProductCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -155,12 +234,17 @@ namespace SamWarehouse.Migrations
 
                     b.Navigation("Cart");
 
-                    b.Navigation("ShoppingItem");
+                    b.Navigation("ProductItem");
                 });
 
             modelBuilder.Entity("SamWarehouse.Models.AppUser", b =>
                 {
                     b.Navigation("Carts");
+                });
+
+            modelBuilder.Entity("SamWarehouse.Models.Product", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("SamWarehouse.Models.ShoppingCart", b =>

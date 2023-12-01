@@ -2,16 +2,16 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SamWarehouse.Models;
+using SamWarehouse.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 //Adds the file uploader and encryption services to our services/dependency injection system.
-//builder.Services.AddScoped<FileUploaderService>();
-//builder.Services.AddScoped<EncryptionService>();
+builder.Services.AddScoped<FileUploaderService>();
+builder.Services.AddScoped<EncryptionService>();
 
 var connString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<ItemDbContext>(options =>
@@ -70,6 +70,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
     }
+
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

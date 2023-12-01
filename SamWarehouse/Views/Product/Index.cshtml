@@ -1,0 +1,38 @@
+﻿@model IEnumerable<SamWarehouse.Models.Product>
+<script src="~/js/product.js" asp-append-version ="true"></script>
+
+@{
+    ViewData["Title"] = "Index";
+     var message = @TempData["ProductError"] ?? "";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="text-center">
+    <h1>Products</h1>
+    <h2 class="text-danger">@message</h2>
+</div>
+
+<div class="card-container row">
+    @foreach (var product in Model)
+        {
+        <div class="single-card card shadow m-2 text-center" style="width: 18rem; height:20rem">
+            <h2>@product.ProductName</h2>
+            <h3>$@product.ProductPrice</h3>
+            <p style="height:12rem">@product.ProductDescription</p>
+            <small>Product Code: @product.ProductCode</small>
+            <small>Updated Date: @product.UpdatedDate.ToString("dd-MMM-yyyy hh:mm tt")</small>
+           
+            <div>
+                @Html.ActionLink("Comments", "CommentList", "Comment", new { id = product.ProductCode }, new { @class = "btn btn-primary m-2" })
+                @Html.ActionLink("Update", "Edit", "Product", new { id = product.ProductCode }, new { @class = "btn btn-primary m-2" })
+                <a class="btn btn-success add-item-button" value="@product.ProductCode"> Add to Cart</a>
+            </div>
+
+        </div>
+        }
+
+</div>

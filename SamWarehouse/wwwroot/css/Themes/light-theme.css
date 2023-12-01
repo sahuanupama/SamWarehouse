@@ -1,0 +1,11 @@
+﻿:root {
+    /* Main Primary color */
+    --theme-colour-0: #26E0E8;
+    /* Lighter Shades */
+    --theme-colour-1: #A4F3F7;
+    --theme-colour-2: #5BE8EF;
+    /* Darker Shades */
+    --theme-colour-3: #01D2DB;
+    --theme-colour-4: #017D83;
+    --theme-text: #000000
+}

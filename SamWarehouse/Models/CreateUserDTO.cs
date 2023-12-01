@@ -2,6 +2,6 @@
     {
     public class CreateUserDTO : LoginUserDTO
         {
-        public string PasswordConformation { get; set; }
+        public string PasswordConfirmation { get; set; }
         }
     }
